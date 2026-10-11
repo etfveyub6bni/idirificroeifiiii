@@ -1,0 +1,25 @@
+name: Windows DLL Build
+
+on: [push, workflow_dispatch]
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    - name: Build Solution
+      run: |
+        cd src/Goose-Goose-Duck-ImGui-main/user
+        msbuild IL2CppDLL.sln /p:Configuration=Release /p:Platform=x64
+
+    - name: Upload Finished DLL
+      uses: actions/upload-artifact@v4
+      with:
+        name: hack-dll
+        path: src/Goose-Goose-Duck-ImGui-main/user/x64/Release/*.dll
