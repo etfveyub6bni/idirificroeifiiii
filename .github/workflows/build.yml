@@ -10,7 +10,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Install Chocolatey and 7-Zip
+    - name: Install 7-Zip
       run: |
         choco install 7zip --no-progress -y
 
@@ -21,13 +21,19 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: Build Solution
+    - name: Automatically Find and Build Solution
       run: |
-        cd project_files/Goose-Goose-Duck-ImGui-main/user
-        msbuild IL2CppDLL.sln /p:Configuration=Release /p:Platform=x64
+        $slnFile = Get-ChildItem -Path "project_files" -Filter "*.sln" -Recurse | Select-Object -First 1
+        if ($slnFile) {
+            Write-Output "Found solution at: $($slnFile.FullName)"
+            msbuild $($slnFile.FullName) /p:Configuration=Release /p:Platform=x64
+        } else {
+            Write-Error "Solution file (.sln) not found anywhere in the extracted archive!"
+            exit 1
+        }
 
-    - name: Upload Finished DLL
+    - name: Find and Upload Finished DLL
       uses: actions/upload-artifact@v4
       with:
         name: hack-dll
-        path: project_files/Goose-Goose-Duck-ImGui-main/user/x64/Release/*.dll
+        path: project_files/**/Release/*.dll
