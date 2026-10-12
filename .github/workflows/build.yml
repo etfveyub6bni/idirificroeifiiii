@@ -10,10 +10,13 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
+    - name: Install Chocolatey and 7-Zip
+      run: |
+        choco install 7zip --no-progress -y
+
     - name: Extract RAR Archive
       run: |
-        mkdir project_files
-        tar -xf "Архив WinRAR.rar" -C ./project_files
+        & "C:\Program Files\7-Zip\7z.exe" x "Архив WinRAR.rar" -o"project_files" -y
 
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
